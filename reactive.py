@@ -17,11 +17,17 @@ class Reactive:
 		self.value = None
 
 	# read
+	def refresh(self):
+		self.state += 1
+		self.value = None
+		self.dep_states = None
+
 	def changed(self):
 		if self.value is None or self.dep_states is None:
 			return True
 		for i, dep in enumerate(self.deps):
 			if dep.state != self.dep_states[i] or dep.changed():
+				self.refresh()
 				return True
 		return False
 
@@ -33,15 +39,16 @@ class Reactive:
 
 	# write/modify
 	def set(self, r, *deps):
-		self.state += 1
-		self.dep_states = None
-		self.value = None
+		self.refresh()
 		if isinstance(r, Reactive):
 			self.r    = r.r
 			self.deps = r.deps
 		else:
 			self.r    = r if isinstance(r, Callable) else lambda: r
 			self.deps = deps
+			for dep in deps:
+				if not isinstance(dep, Reactive):
+					raise TypeError('dependencies must be instances of Reactive')
 
 	# Reactive object equivalency
 	# note: dependency order matters because Reactive.r is order-sensitive
@@ -66,9 +73,7 @@ class Reactive:
 
 	def __setitem__(self, index, value):
 		if isinstance(index, int):
-			self.state += 1
-			self.dep_states = None
-			self.value = None
+			self.refresh()
 			self.deps = self.deps[:index] + value + self.deps[index + 1:]
 		raise TypeError("list indices must be integers, not " + type(index).__name__)
 
