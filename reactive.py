@@ -58,10 +58,10 @@ class Reactive:
 			return self.deps[key]
 		raise TypeError
 
-	def __setitem__(self, key, value):
-		if isinstance(key, int):
-			self.deps[key].state += 1
-			self.deps[key] = value
+	def __setitem__(self, index, value):
+		if isinstance(index, int):
+			self.state += 1
+			self.deps = self.deps[:index] + value + self.deps[index + 1:]
 		raise TypeError
 
 	def __iter__(self):
