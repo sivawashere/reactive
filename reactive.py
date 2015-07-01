@@ -91,86 +91,89 @@ class Reactive:
 		return self() >= other
 
 	# overload operators
+	@staticmethod
+	def package(obj):
+		if isinstance(obj, Reactive):
+			return obj
+		return Reactive(obj)
+
 	def __add__(self, other):
-		return self() + other
+		return Reactive(lambda a, b: a() + b(), self, Reactive.package(other))
 
 	def __sub__(self, other):
-		return self() - other
+		return Reactive(lambda a, b: a() - b(), self, Reactive.package(other))
 
 	def __mul__(self, other):
-		return self() * other
+		return Reactive(lambda a, b: a() * b(), self, Reactive.package(other))
 
 	def __truediv__(self, other):
-		return self() / other
+		return Reactive(lambda a, b: a() / b(), self, Reactive.package(other))
 
 	def __floordiv__(self, other):
-		return self() // other
+		return Reactive(lambda a, b: a() // b(), self, Reactive.package(other))
 
 	def __mod__(self, other):
-		return self() % other
+		return Reactive(lambda a, b: a() % b(), self, Reactive.package(other))
 
 	def __divmod__(self, other):
-		return divmod(self, other)
+		return Reactive(lambda a, b: divmod(a(), b()), self, Reactive.package(other))
 
 	def __pow__(self, other):
-		return self() ** other
-
-	def __pow__(self, other, modulo):
-		return pow(self(), other, modulo)
+		return Reactive(lambda a, b: a() ** b(), self, Reactive.package(other))
 
 	def __lshift__(self, other):
-		return self() << other
+		return Reactive(lambda a, b: a() << b(), self, Reactive.package(other))
 
 	def __rshift__(self, other):
-		return self() >> other
+		return Reactive(lambda a, b: a() >> b(), self, Reactive.package(other))
 
 	def __and__(self, other):
-		return self() & other
+		return Reactive(lambda a, b: a() & b(), self, Reactive.package(other))
 
 	def __xor__(self, other):
-		return self() ^ other
+		return Reactive(lambda a, b: a() ^ b(), self, Reactive.package(other))
 
 	def __or__(self, other):
-		return self() | other
+		return Reactive(lambda a, b: a() | b(), self, Reactive.package(other))
 
 	def __radd__(self, other):
-		return other + self()
+		return Reactive(lambda a, b: a() + b(), Reactive.package(other), self)
 
 	def __rsub__(self, other):
-		return other - self()
+		return Reactive(lambda a, b: a() - b(), Reactive.package(other), self)
 
 	def __rmul__(self, other):
-		return other * self()
+		return Reactive(lambda a, b: a() * b(), Reactive.package(other), self)
 
 	def __rtruediv__(self, other):
-		return other / self()
+		return Reactive(lambda a, b: a() / b(), Reactive.package(other), self)
 
 	def __rfloordiv__(self, other):
-		return other // self()
+		return Reactive(lambda a, b: a() // b(), Reactive.package(other), self)
 
 	def __rmod__(self, other):
-		return other % self()
+		return Reactive(lambda a, b: a() % b(), Reactive.package(other), self)
 
 	def __rdivmod__(self, other):
-		return divmod(other, self())
+		return Reactive(lambda a, b: divmod(a(), b()), Reactive.package(other), self)
 
 	def __rpow__(self, other):
-		return other ** self()
+		return Reactive(lambda a, b: a() ** b(), Reactive.package(other), self)
 
 	def __rlshift__(self, other):
-		return other << self()
+		return Reactive(lambda a, b: a() << b(), Reactive.package(other), self)
 
 	def __rrshift__(self, other):
-		return other >> self()
+		return Reactive(lambda a, b: a() >> b(), Reactive.package(other), self)
 
 	def __rand__(self, other):
-		return other & self()
+		return Reactive(lambda a, b: a() & b(), Reactive.package(other), self)
 
 	def __rxor__(self, other):
-		return other ^ self()
+		return Reactive(lambda a, b: a() ^ b(), Reactive.package(other), self)
 
 	def __ror__(self, other):
-		return other | self()
+		return Reactive(lambda a, b: a() | b(), Reactive.package(other), self)
 
 	def __neg__(self):
 		return -self()
