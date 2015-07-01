@@ -12,6 +12,10 @@ class Reactive:
 		else:
 			self.r    = r if isinstance(r, Callable) else lambda: r
 			self.deps = deps
+			# enforce type safety
+			for dep in deps:
+				if not isinstance(dep, Reactive):
+					raise TypeError('dependencies must be instances of Reactive')
 		self.state = 0
 		self.dep_states = None
 		self.value = None
@@ -69,13 +73,15 @@ class Reactive:
 	def __getitem__(self, index):
 		if isinstance(index, int):
 			return self.deps[index]
-		raise TypeError("list indices must be integers, not " + type(index).__name__)
+		raise TypeError('list indices must be integers, not ' + type(index).__name__)
 
 	def __setitem__(self, index, value):
+		if not isinstance(value, Reactive):
+			raise TypeError('dependencies must be Reactive, not ' + type(index).__name__)
 		if isinstance(index, int):
 			self.refresh()
 			self.deps = self.deps[:index] + value + self.deps[index + 1:]
-		raise TypeError("list indices must be integers, not " + type(index).__name__)
+		raise TypeError('list indices must be integers, not ' + type(index).__name__)
 
 	def __iter__(self):
 		return iter(self.deps)
