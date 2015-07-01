@@ -13,8 +13,8 @@ class Reactive:
 			self.r    = r if isinstance(r, Callable) else lambda: r
 			self.deps = deps
 		self.state = 0
-		self.dep_states = [dep.state for dep in self.deps]
-		self.value = self.r(*self.deps)
+		self.dep_states = None
+		self.value = None
 
 	# read
 	def changed(self):
@@ -24,7 +24,7 @@ class Reactive:
 		return False
 
 	def __call__(self):
-		if self.changed():
+		if self.value is None or self.changed():
 			self.dep_states = [dep.state for dep in self.deps]
 			self.value = self.r(*self.deps)
 		return self.value
@@ -32,13 +32,14 @@ class Reactive:
 	# write/modify
 	def set(self, r, *deps):
 		self.state += 1
+		self.dep_states = None
+		self.value = None
 		if isinstance(r, Reactive):
 			self.r    = r.r
 			self.deps = r.deps
 		else:
 			self.r    = r if isinstance(r, Callable) else lambda: r
 			self.deps = deps
-		self.value = self.r(*self.deps)
 
 	# Reactive object equivalency
 	# note: dependency order matters because Reactive.r is order-sensitive
@@ -52,6 +53,9 @@ class Reactive:
 	def __len__(self):
 		return len(self.deps)
 
+	def __hash__(self):
+		return hash(self.r) ^ hash(self.deps)
+
 	# emulate list operations
 	def __getitem__(self, key):
 		if isinstance(key, int):
@@ -61,6 +65,8 @@ class Reactive:
 	def __setitem__(self, index, value):
 		if isinstance(index, int):
 			self.state += 1
+			self.dep_states = None
+			self.value = None
 			self.deps = self.deps[:index] + value + self.deps[index + 1:]
 		raise TypeError
 
