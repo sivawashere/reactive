@@ -18,13 +18,15 @@ class Reactive:
 
 	# read
 	def changed(self):
-		for i in range(len(self.deps)):
-			if self.deps[i].state != self.dep_states[i] or self.deps[i].changed():
+		if self.value is None or self.dep_states is None:
+			return True
+		for i, dep in enumerate(self.deps):
+			if dep.state != self.dep_states[i] or dep.changed():
 				return True
 		return False
 
 	def __call__(self):
-		if self.value is None or self.changed():
+		if self.changed():
 			self.dep_states = [dep.state for dep in self.deps]
 			self.value = self.r(*self.deps)
 		return self.value
