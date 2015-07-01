@@ -57,10 +57,10 @@ class Reactive:
 		return hash(self.r) ^ hash(self.deps)
 
 	# emulate list operations
-	def __getitem__(self, key):
-		if isinstance(key, int):
-			return self.deps[key]
-		raise TypeError
+	def __getitem__(self, index):
+		if isinstance(index, int):
+			return self.deps[index]
+		raise TypeError("list indices must be integers, not " + type(index).__name__)
 
 	def __setitem__(self, index, value):
 		if isinstance(index, int):
@@ -68,7 +68,7 @@ class Reactive:
 			self.dep_states = None
 			self.value = None
 			self.deps = self.deps[:index] + value + self.deps[index + 1:]
-		raise TypeError
+		raise TypeError("list indices must be integers, not " + type(index).__name__)
 
 	def __iter__(self):
 		return iter(self.deps)
@@ -195,40 +195,52 @@ class Reactive:
 
 	# reject augmented assignment
 	def __iadd__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for +=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __isub__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for |=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __imul__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for *=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __itruediv__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for /=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __ifloordiv__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for //=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __imod__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for %=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __ipow__(self, other, modulo=None):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for **=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __ilshift__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for <<=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __irshift__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for >>=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __iand__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for &=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __ixor__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for ^=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	def __ior__(self, other):
-		raise TypeError
+		raise TypeError("unsupported operand type(s) for |=: 'Reactive' and '" +
+		                type(other).__name__ + "'")
 
 	# output
 	def __str__(self):
