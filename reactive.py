@@ -7,22 +7,41 @@ class Reactive:
 	# create
 	def __init__(self, r, *deps):
 		if isinstance(r, Reactive):
-			self.r    = reactive.r
-			self.deps = reactive.deps
+			self.r    = r.r
+			self.deps = r.deps
 		else:
 			self.r    = r if isinstance(r, Callable) else lambda: r
 			self.deps = deps
+		self.state = 0
+		self.dep_states = [dep.state for dep in self.deps]
+		self.value = self.r(*self.deps)
 
 	# read
+	def changed(self):
+		for i in range(len(self.deps)):
+			if self.deps[i].state != self.dep_states[i] or self.deps[i].changed():
+				return True
+		return False
+
 	def __call__(self):
-		return self.r(*self.deps)
+		if self.changed():
+			self.dep_states = [dep.state for dep in self.deps]
+			self.value = self.r(*self.deps)
+		return self.value
 
 	# write/modify
 	def set(self, r, *deps):
-		self.__init__(r, *deps)
+		self.state += 1
+		if isinstance(r, Reactive):
+			self.r    = r.r
+			self.deps = r.deps
+		else:
+			self.r    = r if isinstance(r, Callable) else lambda: r
+			self.deps = deps
+		self.value = self.r(*self.deps)
 
 	# Reactive object equivalency
-	# note: dependancy order matters because Reactive.r is order-sensitive
+	# note: dependency order matters because Reactive.r is order-sensitive
 	def equals(self, other):
 		return isinstance(other, Reactive) and self.r == other.r and self.deps == other.deps
 
@@ -41,6 +60,7 @@ class Reactive:
 
 	def __setitem__(self, key, value):
 		if isinstance(key, int):
+			self.deps[key].state += 1
 			self.deps[key] = value
 		raise TypeError
 
